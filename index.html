@@ -1,52 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <link rel="stylesheet" href="style/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>❤️ Valentine's Day Quiz ❤️</title>
-    <link rel="icon" type="image/x-icon" href="assets/heart.png">
+<meta charset="UTF-8">
+<title>How Well Do You Know Me?</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at center, #0d0d2b, #000);
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 100px;
+    font-size: 40px;
+}
+
+button {
+    padding: 12px 25px;
+    margin: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.start-btn {
+    background: gold;
+    color: black;
+}
+
+.option-btn {
+    display: block;
+    width: 60%;
+    margin: 10px auto;
+    background: #1f1f4d;
+    color: white;
+}
+
+.next-btn {
+    background: gold;
+    color: black;
+    display: none;
+}
+
+.correct {
+    background: green !important;
+}
+
+.wrong {
+    background: red !important;
+}
+
+#quiz-container {
+    display: none;
+    margin-top: 50px;
+}
+
+#final-screen {
+    display: none;
+    margin-top: 100px;
+}
+
+.flip {
+    font-size: 80px;
+    transition: transform 1s;
+}
+
+input {
+    padding: 10px;
+    width: 60px;
+    text-align: center;
+    font-size: 24px;
+    margin: 10px;
+}
+</style>
 </head>
+
 <body>
 
-        <div class="completion-message" id="completionMessage">🎉 Congratulations, dear! These are all the correct answers! 🎉</div>
-        <div class="imperfect-message" id="imperfectMessage">💔 There were some mistakes, but you still did well! Try again! 💔</div>
-        <audio id="victorySound" src="music/victory.mp3"></audio>    
+<div id="home">
+    <h1>How well do you know me?</h1>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+</div>
 
-        
-    <div class="container">
-        <div class="score-board" id="scoreDisplay">Score: 0/0</div>
-        <h1>[YourName] & [PartnerName] Valentine's Day Quiz ❤️</h1>
-        <div class="heart">♥</div>
+<div id="quiz-container">
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <button class="next-btn" onclick="nextQuestion()">Next</button>
+</div>
 
-        <!-- Questions (same structure as before) -->
-        <div class="question-box">
-            <div class="question">Where did you have your first date?</div>
-            <div class="option"  onclick="handleAnswer(this, 'incorrect')">Restaurant</div>
-            <div class="option" onclick="handleAnswer(this, 'incorrect')">Cinema</div>
-            <div class="option" data-correct="true" onclick="handleAnswer(this, 'correct')">Park</div>
-        </div>
+<div id="final-screen">
+    <h2>Final Lock Question</h2>
+    <p>Answer the three parts correctly (One letter/digit each)</p>
+    <input id="a1" maxlength="1">
+    <input id="a2" maxlength="1">
+    <input id="a3" maxlength="1"><br>
+    <button onclick="checkFinal()">Lock Answer</button>
 
-        <div class="question-box">
-            <div class="question">Who said 'I love you' first?</div>
-            <div class="option" onclick="handleAnswer(this, 'incorrect')">Ме</div>
-            <div class="option" onclick="handleAnswer(this, 'incorrect')">My Partner</div>
-            <div class="option" data-correct="true" onclick="handleAnswer(this, 'correct')">At the same time</div>
-        </div>
+    <div id="result" style="margin-top:40px;"></div>
+</div>
 
-        <div class="question-box">
-            <div class="question">What is your partner's favorite dessert</div>
-            <div class="option" data-correct="true" onclick="handleAnswer(this, 'correct')">Chocolate Cake</div>
-            <div class="option" onclick="handleAnswer(this, 'incorrect')">Ice Cream</div>
-            <div class="option" onclick="handleAnswer(this, 'incorrect')">Fruit Salad</div>
-        </div>
+<script>
+const quiz = [
+{
+q:"What was the first text I ever sent you?",
+options:["Inshallah","That spider thingy","Hate watch","Y are u up so late"],
+answer:0
+},
+{
+q:"Which song reminds me of you?",
+options:["Idhazhin Oram","Thattathin Marayathil Penne","Yeh tune Kya Kiya","Zara Zara"],
+answer:0
+},
+{
+q:"When did we have the first longest conversation?",
+options:["29th Nov","26th Nov","28th Nov","30th Nov"],
+answer:2
+},
+{
+q:"Which day did we spend texting for 3 hours at night?",
+options:["1st Dec","2nd Dec","30th Nov","29th Nov"],
+answer:2
+},
+{
+q:"Which movie did we first watch together?",
+options:["Frankenstein","3","Dhoom 3","DDLJ"],
+answer:1
+},
+{
+q:"When was our first kiss?",
+options:["26th Dec","25th Dec","28th Dec","29th Dec"],
+answer:1
+},
+{
+q:"Which is my fav food?",
+options:["Fried Rice","Pasta","burger","You"],
+answer:0
+},
+{
+q:"Which is my fav movie?",
+options:["Lucky the racer","3","Fidaa","Master"],
+answer:1
+},
+{
+q:"What was I wearing when we first met?",
+options:["Maroon shirt","Black shirt","Uniform","Green shirt"],
+answer:0
+},
+{
+q:"If I disappear for a day, where can you find me?",
+options:["Home sleeping","turf","Restaurant"],
+answer:1
+},
+{
+q:"What is the nickname that I call you?",
+options:["Beesly","Looser","365"],
+answer:0
+},
+{
+q:"What is my fav thing about you?",
+options:["Spending time with you","Loving you","Cooking for you","Kissing you"],
+answer:0
+},
+{
+q:"Which is the most romantic thing you have ever done?",
+options:["Making jelly and picking me up from airport","Jellyfish","Our first date remake","That night when you said the most amazing things about me which no one has ever said to me"],
+answer:0
+}
+];
 
+let current = 0;
 
+function startQuiz(){
+    document.getElementById("home").style.display="none";
+    document.getElementById("quiz-container").style.display="block";
+    showQuestion();
+}
 
-        <!-- Add more questions here -->
-    </div>
+function showQuestion(){
+    document.getElementById("question").innerText = quiz[current].q;
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML="";
+    document.querySelector(".next-btn").style.display="none";
 
-    <script src="script/main.js"></script>
+    quiz[current].options.forEach((opt,index)=>{
+        let btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.className="option-btn";
+        btn.onclick = function(){selectAnswer(index)};
+        optionsDiv.appendChild(btn);
+    });
+}
+
+function selectAnswer(index){
+    const buttons = document.querySelectorAll(".option-btn");
+    buttons.forEach(btn=>btn.disabled=true);
+
+    if(index===quiz[current].answer){
+        buttons[index].classList.add("correct");
+    } else {
+        buttons[index].classList.add("wrong");
+        buttons[quiz[current].answer].classList.add("correct");
+    }
+    document.querySelector(".next-btn").style.display="inline-block";
+}
+
+function nextQuestion(){
+    current++;
+    if(current<quiz.length){
+        showQuestion();
+    } else {
+        document.getElementById("quiz-container").style.display="none";
+        document.getElementById("final-screen").style.display="block";
+    }
+}
+
+function checkFinal(){
+    const a1 = document.getElementById("a1").value.toUpperCase();
+    const a2 = document.getElementById("a2").value;
+    const a3 = document.getElementById("a3").value.toUpperCase();
+
+    if(a1==="Y" && a2==="3" && a3==="S"){
+        document.getElementById("result").innerHTML =
+        "<div class='flip' id='flipText'>Y3S</div>" +
+        "<h2>Will you be my Beesly?</h2>" +
+        "<h3>You answered: YES</h3>";
+
+        setTimeout(()=>{
+            document.getElementById("flipText").style.transform="rotateY(180deg)";
+            document.getElementById("flipText").innerText="YES";
+        },1000);
+    } else {
+        alert("Try again 💕");
+    }
+}
+</script>
+
 </body>
 </html>
